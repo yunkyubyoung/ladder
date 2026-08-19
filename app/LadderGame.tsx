@@ -13,7 +13,7 @@ function makeBars(count: number): Bar[] {
   const rows = Math.max(10, count * 2 + 2);
   const bars: Bar[] = [];
   for (let row = 0; row < rows; row++) {
-    let col = Math.floor(Math.random() * (count - 1));
+    const col = Math.floor(Math.random() * (count - 1));
     bars.push({ row, col });
     if (count > 4 && Math.random() > 0.52) {
       const candidates = Array.from({ length: count - 1 }, (_, i) => i).filter((i) => Math.abs(i - col) > 1);
@@ -66,9 +66,6 @@ export function LadderGame() {
       const saved = localStorage.getItem("sketch-ladder");
       if (!saved) return;
       JSON.parse(saved);
-      setCount(6);
-      setNames(DEFAULT_NAMES);
-      setResults(DEFAULT_RESULTS);
       localStorage.removeItem("sketch-ladder");
     } catch { /* 오래된 저장값은 무시합니다. */ }
   }, []);
