@@ -1,0 +1,475 @@
+@import "tailwindcss";
+
+:root { --ink: #252525; --paper: #fffefb; --green: #17ad69; --red: #e14949; }
+* { box-sizing: border-box; }
+html { min-width: 320px; background: #f4f0e8; }
+body { margin: 0; color: var(--ink); font-family: "Nanum Pen Script", "Segoe Print", "Malgun Gothic", sans-serif; background: radial-gradient(circle at 20% 15%, #fff 0 1px, transparent 2px), #f4f0e8; background-size: 22px 22px; }
+button, input { font: inherit; }
+button { color: inherit; }
+.site-shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 22px; }
+.brand-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 0 14px; }
+.brand-mark { display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid var(--ink); border-radius: 48% 52% 46% 54%; font-size: 30px; font-weight: 900; color: var(--green); transform: rotate(-4deg); box-shadow: 2px 3px 0 rgba(0,0,0,.15); }
+.eyebrow { margin: 0 0 2px; color: #777; font-size: 13px; font-family: "Malgun Gothic", sans-serif; letter-spacing: .08em; }
+h1 { margin: 0; font-size: clamp(25px, 4vw, 35px); letter-spacing: -.08em; }
+.pencil-note { margin-left: auto; transform: rotate(2deg); color: #777; font-size: 16px; }
+.paper-card { position: relative; min-height: 620px; overflow: hidden; border: 1px solid #d0cdc6; border-radius: 4px 6px 5px 3px; background-color: var(--paper); background-image: linear-gradient(90deg, transparent 70px, rgba(220,72,72,.17) 71px, transparent 72px), repeating-linear-gradient(0deg, transparent 0 31px, rgba(93,144,190,.12) 32px, transparent 33px); box-shadow: 0 17px 50px rgba(62,49,35,.12), inset 0 0 35px rgba(90,75,50,.035); padding: 34px clamp(18px, 5vw, 64px) 24px; }
+.paper-card::after { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(45,45,45,.08); pointer-events: none; transform: rotate(.08deg); }
+.tape { position: absolute; z-index: 2; width: 104px; height: 28px; top: -5px; background: rgba(217,202,164,.48); box-shadow: inset 0 0 8px rgba(120,100,60,.12); }
+.tape-left { left: 8%; transform: rotate(-5deg); }.tape-right { right: 8%; transform: rotate(4deg); }
+.intro-panel { min-height: 555px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.intro-panel h2 { margin: 0; font-size: clamp(46px, 8vw, 86px); letter-spacing: -.12em; transform: rotate(-1.5deg); text-shadow: 2px 3px 0 rgba(0,0,0,.08); }
+.scribble { width: min(390px, 70%); height: 14px; margin: 0 auto 36px; border-top: 4px solid #333; border-radius: 50%; transform: rotate(-2deg); opacity: .65; }
+.speech { position: absolute; right: 8%; top: 36px; margin: 0; padding: 13px 18px; border: 2px solid #555; border-radius: 47% 52% 46% 55% / 55% 47% 53% 45%; background: #fff; font-size: 17px; line-height: 1.45; transform: rotate(1.5deg); box-shadow: 2px 2px 0 rgba(0,0,0,.08); }
+.speech::after { content: ""; position: absolute; right: 25px; bottom: -16px; width: 18px; height: 20px; background: linear-gradient(135deg, transparent 49%, #555 50% 55%, white 56%); transform: skewX(-18deg); }
+.speech.compact { z-index: 3; top: 18px; right: 5%; font-size: 15px; padding: 9px 14px; }
+.counter { display: flex; align-items: center; gap: 31px; }
+.counter button { width: 47px; height: 47px; border: 0; border-radius: 50%; background: var(--ink); color: white; cursor: pointer; font-family: Arial; font-size: 31px; line-height: 1; box-shadow: 2px 3px 0 #aaa; transition: transform .15s; }
+.counter button:hover:not(:disabled) { transform: rotate(-5deg) scale(1.07); }.counter button:disabled { opacity: .25; cursor: not-allowed; }
+.counter strong { display: grid; place-items: center; width: 88px; height: 88px; border: 2px solid #555; border-radius: 50% 46% 52% 48%; color: var(--red); font-size: 48px; transform: rotate(2deg); }
+.text-button { position: relative; border: 0; background: transparent; cursor: pointer; padding: 10px 18px; font-size: 22px; font-weight: 700; }
+.text-button::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 5px; border-bottom: 3px solid currentColor; transform: rotate(-1deg); opacity: .8; }
+.start-button { margin-top: 25px; }.text-button.primary { color: var(--red); }.text-button.muted { color: #777; font-size: 18px; }
+.game-panel { position: relative; padding-top: 60px; }
+.field-row { display: grid; gap: clamp(5px, 1vw, 13px); overflow-x: auto; padding: 4px; }
+.field-row input { width: 100%; min-width: 62px; height: 42px; border: 2px solid #444; border-radius: 3px 5px 2px 4px; background: rgba(255,255,255,.78); padding: 5px 7px; text-align: center; outline: none; font-size: clamp(12px, 1.8vw, 17px); transform: rotate(var(--tilt, 0deg)); }
+.field-row input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,173,105,.12); }
+.name-chip { min-width: 62px; border: 0; background: transparent; cursor: pointer; font-weight: 700; font-size: clamp(11px, 1.7vw, 16px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 4px 2px; }
+.name-chip span { display: grid; place-items: center; margin: 0 auto 4px; width: 29px; height: 29px; border-radius: 50%; color: white; font-family: Arial; font-size: 13px; box-shadow: 1px 2px 0 #999; }
+.name-chip:hover:not(:disabled) { transform: translateY(-2px) rotate(-2deg); }.name-chip.finished { opacity: .46; }.name-chip.selected { opacity: 1; transform: scale(1.08); }
+.ladder-wrap { width: 100%; height: clamp(290px, 42vw, 440px); margin: 4px 0; }
+.ladder { width: 100%; height: 100%; overflow: visible; }
+.ladder-line { stroke: #383838; stroke-width: 3.1; stroke-linecap: round; vector-effect: non-scaling-stroke; filter: drop-shadow(1px 1px 0 rgba(0,0,0,.09)); }
+.ladder-line:nth-child(3n) { stroke-width: 2.6; }.rung { stroke-width: 3; }
+.route-line { fill: none; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; stroke-dasharray: 2600; stroke-dashoffset: 2600; animation: trace 4s linear forwards; filter: drop-shadow(0 2px 1px rgba(0,0,0,.18)); }
+@keyframes trace { to { stroke-dashoffset: 0; } }
+.result-chip { display: grid; place-items: center; min-width: 62px; min-height: 38px; border: 2px solid #444; border-radius: 3px 5px 2px 4px; background: rgba(255,255,255,.72); font-size: clamp(11px, 1.7vw, 16px); text-align: center; transition: .25s; }
+.result-chip.winner { background: #fff3aa; color: #c63434; transform: rotate(-2deg) scale(1.08); box-shadow: 3px 4px 0 rgba(0,0,0,.12); font-weight: 800; }
+.result-toast { width: fit-content; max-width: 90%; margin: 18px auto -5px; padding: 10px 22px; border: 2px solid #333; background: #fffef5; box-shadow: 4px 5px 0 rgba(0,0,0,.1); font-size: 20px; transform: rotate(-1deg); }
+.result-toast span { color: #555; }.result-toast strong { color: var(--red); }
+.actions { display: flex; justify-content: center; gap: 30px; margin-top: 18px; }
+footer { padding: 17px; color: #8b8378; text-align: center; font-family: "Malgun Gothic", sans-serif; font-size: 12px; }
+@media (max-width: 700px) {
+  .site-shell { width: calc(100% - 18px); padding-top: 16px; }.brand-row { padding: 0 5px; }.brand-mark { width: 44px; height: 44px; }.pencil-note { display: none; }
+  .paper-card { min-height: 580px; padding: 25px 12px 18px; background-image: linear-gradient(90deg, transparent 35px, rgba(220,72,72,.15) 36px, transparent 37px), repeating-linear-gradient(0deg, transparent 0 27px, rgba(93,144,190,.1) 28px, transparent 29px); }
+  .intro-panel { min-height: 520px; }.speech { position: relative; right: auto; top: auto; align-self: flex-end; margin: 0 4px 48px 0; font-size: 14px; }
+  .intro-panel h2 { font-size: 48px; }.counter { gap: 20px; }.counter strong { width: 72px; height: 72px; font-size: 40px; }.counter button { width: 41px; height: 41px; }
+  .game-panel { padding-top: 72px; }.speech.compact { position: absolute; top: 9px; right: 8px; margin: 0; }.ladder-wrap { height: 330px; }
+  .field-row { grid-auto-columns: minmax(65px, 1fr); }.actions { gap: 9px; }.text-button { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+/* 네이버 검색 위젯의 연필 스케치 레이아웃 */
+html, body { background: #fff; }
+body { min-height: 100vh; padding: 38px 20px; font-family: "Nanum Pen Script", "Segoe Print", "Malgun Gothic", sans-serif; }
+.search-widget { width: min(665px, 100%); margin: 0 auto; border: 1px solid #e5e5e5; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.02); }
+.widget-heading { height: 50px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ececec; color: #333; font-family: "Malgun Gothic", sans-serif; font-size: 16px; font-weight: 600; }
+.paper-stage { position: relative; min-height: 365px; padding: 18px 45px 24px; overflow: hidden; background: #fff; }
+.paper-shadow { position: absolute; z-index: 0; display: block; width: 470px; height: 205px; left: 58px; top: 90px; border: 1px solid #7b7b7b; background: #fdfdfb; box-shadow: 0 2px 3px rgba(0,0,0,.12); }
+.paper-one { transform: rotate(-7deg); }.paper-two { left: 88px; top: 104px; transform: rotate(5deg); }
+.paper-card { position: relative; z-index: 1; min-height: 300px; padding: 28px 34px 20px; overflow: visible; border: 1px solid #8a8a8a; border-radius: 1px; background-color: #fff; background-image: linear-gradient(90deg, transparent 92px, rgba(216,85,85,.16) 93px, transparent 94px), repeating-linear-gradient(0deg, transparent 0 23px, rgba(89,129,168,.14) 24px, transparent 25px); box-shadow: 1px 3px 5px rgba(0,0,0,.19); }
+.paper-card::after { inset: 4px; border: 0; box-shadow: inset 0 0 20px rgba(80,80,60,.025); }
+.paper-card::before { content: "© LADDER"; position: absolute; right: 9px; bottom: 6px; color: #777; font-family: Arial, sans-serif; font-size: 7px; font-weight: 700; letter-spacing: -.03em; }
+.tape { display: none; }
+.intro-panel { min-height: 250px; justify-content: center; padding-top: 18px; }
+.intro-panel h2 { margin-top: 0; font-size: 42px; letter-spacing: -.11em; transform: rotate(-1deg); text-shadow: 1px 2px 0 rgba(0,0,0,.07); }
+.scribble { width: 175px; height: 9px; margin: -1px auto 18px; border-top: 3px solid #333; opacity: .52; }
+.speech, .speech.compact { right: 12px; top: -18px; padding: 7px 11px; border: 2px solid #555; border-radius: 48% 48% 46% 52% / 53% 47% 52% 48%; font-size: 11px; line-height: 1.35; }
+.speech.compact { top: -20px; font-size: 11px; }
+.speech::after { right: 19px; bottom: -12px; width: 13px; height: 15px; }
+.counter { gap: 22px; }
+.counter button { width: 25px; height: 25px; font-size: 23px; box-shadow: none; display: grid; place-items: center; padding: 0 0 2px; }
+.counter strong { width: 58px; height: 58px; border-width: 1.5px; font-size: 34px; }
+.text-button { padding: 5px 12px; font-size: 14px; }
+.text-button::after { left: 7px; right: 7px; bottom: 2px; border-bottom-width: 2px; }
+.start-button { margin-top: 12px; }
+.game-panel { padding-top: 14px; }
+.field-row { gap: 6px; padding: 2px; }
+.field-row input { height: 28px; min-width: 54px; padding: 2px 4px; border: 1.5px solid #444; border-radius: 0; font-size: 11px; }
+.name-chip { min-width: 54px; font-size: 10px; }
+.name-chip span { width: 20px; height: 20px; margin-bottom: 2px; font-size: 9px; }
+.ladder-wrap { height: 170px; margin: 0; }
+.ladder-line { stroke-width: 2.2; }.rung { stroke-width: 2; }.route-line { stroke-width: 5; }
+.result-chip { min-width: 54px; min-height: 27px; border: 1.5px solid #444; border-radius: 0; font-size: 10px; }
+.result-toast { position: absolute; z-index: 4; left: 50%; bottom: 28px; transform: translateX(-50%) rotate(-1deg); margin: 0; padding: 6px 14px; font-size: 13px; white-space: nowrap; }
+.actions { margin-top: 8px; gap: 24px; }.text-button.muted { font-size: 12px; }
+
+@media (max-width: 700px) {
+  body { padding: 12px 7px; }
+  .search-widget { width: 100%; border-radius: 10px; }
+  .widget-heading { height: 44px; padding: 0 14px; font-size: 14px; }
+  .paper-stage { min-height: 350px; padding: 20px 13px 22px; }
+  .paper-shadow { width: 82%; left: 8%; }
+  .paper-two { left: 10%; }
+  .paper-card { min-height: 300px; padding: 31px 13px 17px; background-image: linear-gradient(90deg, transparent 48px, rgba(216,85,85,.15) 49px, transparent 50px), repeating-linear-gradient(0deg, transparent 0 23px, rgba(89,129,168,.13) 24px, transparent 25px); }
+  .intro-panel { min-height: 245px; }.intro-panel h2 { font-size: 38px; }
+  .speech { position: absolute; right: 4px; top: -20px; margin: 0; font-size: 10px; }
+  .game-panel { padding-top: 14px; }.speech.compact { top: -25px; right: 2px; }
+  .field-row { overflow-x: auto; }.ladder-wrap { height: 178px; }.actions { margin-top: 5px; }
+}
+
+/* 첨부된 614×329 기준 화면 */
+body { padding: 0; overflow-x: hidden; }
+.search-widget { width: min(614px, 100vw); aspect-ratio: 614 / 329; margin: 0 auto; border: 0; border-radius: 0; overflow: hidden; box-shadow: none; background: white; }
+.paper-stage { position: relative; width: 100%; height: 100%; min-height: 0; padding: 0; overflow: hidden; background: #fff; }
+.paper-stage::after { content: "© NAVER"; position: absolute; z-index: 5; right: 34px; bottom: 15px; color: #8d8d8d; font: 700 7px/1 Arial, sans-serif; letter-spacing: -.35px; }
+.paper-shadow { z-index: 0; display: block; border: 1px solid #5e5e5e; background: #fff; box-shadow: none; }
+.paper-one { width: 545px; height: 260px; left: 30px; top: 35px; transform: rotate(-3deg); }
+.paper-two { width: 535px; height: 250px; left: 37px; top: 42px; transform: rotate(2.1deg); }
+.paper-scrap { position: absolute; z-index: 0; display: block; border: 1px solid #777; background: #fff; }
+.scrap-left { width: 53px; height: 151px; left: 25px; top: 144px; transform: rotate(5deg) skewY(-7deg); }
+.scrap-bottom-left { width: 180px; height: 42px; left: 25px; bottom: 8px; transform: rotate(-7deg) skewX(-20deg); }
+.scrap-bottom-mid { width: 220px; height: 37px; left: 210px; bottom: 10px; transform: rotate(2deg) skewX(18deg); }
+.scrap-right { width: 35px; height: 124px; right: 25px; top: 153px; transform: rotate(-14deg) skewY(12deg); }
+.paper-card { position: absolute; z-index: 2; left: 35px; top: 21px; width: 547px; height: 274px; min-height: 0; padding: 0; overflow: visible; border: 1px solid #9b9b9b; border-radius: 2px 1px 3px 1px; background-color: #fff; background-image: linear-gradient(90deg, transparent 104px, rgba(238,107,107,.25) 105px, transparent 106px), repeating-linear-gradient(0deg, transparent 0 17px, rgba(106,157,204,.18) 18px, transparent 19px); box-shadow: 1px 3px 4px rgba(0,0,0,.18); transform: rotate(-.08deg); }
+.paper-card::before, .paper-card::after { display: none; }
+.intro-panel { position: relative; display: block; min-height: 0; height: 100%; padding: 0; }
+.intro-panel h2 { position: absolute; left: 186px; top: 24px; width: 250px; margin: 0; color: #080808; font-family: "Malgun Gothic", "Arial Black", sans-serif; font-size: 29px; font-weight: 900; line-height: 1.15; letter-spacing: -3px; transform: rotate(-1deg) scaleX(1.08); text-shadow: 1px 1px 0 #111; }
+.intro-panel h2::after { content: ""; position: absolute; width: 172px; height: 12px; left: -10px; top: 39px; border-top: 2px solid #4d4d4d; border-radius: 50%; transform: rotate(-4deg); box-shadow: 0 -3px 0 -1px rgba(70,70,70,.38); }
+.scribble { display: none; }
+.speech { position: absolute; z-index: 4; right: -14px; top: -15px; width: 164px; height: 58px; margin: 0; padding: 8px 9px 5px; border: 1.7px solid #222; border-radius: 15px 12px 16px 12px; background: #fff; color: #171717; font-family: "Segoe Print", "Malgun Gothic", sans-serif; font-size: 10px; font-weight: 600; line-height: 1.75; letter-spacing: -.8px; transform: rotate(.6deg); box-shadow: none; }
+.speech::after { right: 24px; bottom: -19px; width: 18px; height: 23px; background: linear-gradient(112deg, transparent 46%, #222 47% 51%, white 52%); transform: rotate(7deg) skewX(-12deg); }
+.counter { position: absolute; left: 192px; top: 108px; display: flex; width: 181px; height: 74px; align-items: center; justify-content: space-between; gap: 0; }
+.counter button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0 0 3px; border: 0; border-radius: 50%; background: #000; color: #fff; font-family: Arial, sans-serif; font-size: 22px; font-weight: 400; line-height: 1; box-shadow: none; }
+.counter button:last-child { padding-bottom: 1px; font-size: 21px; }
+.counter strong { display: grid; place-items: center; width: 77px; height: 77px; border: 1.4px solid #111; border-radius: 52% 48% 49% 51%; color: #e21f26; font-family: "Segoe Print", "Comic Sans MS", cursive; font-size: 42px; font-weight: 500; line-height: 1; transform: rotate(5deg); }
+.start-button { position: absolute; left: 239px; top: 193px; width: 90px; margin: 0; padding: 4px 8px 10px; color: #242424; font-family: "Segoe Print", "Malgun Gothic", sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 6px; }
+.start-button::after { left: 11px; right: 11px; bottom: 4px; border-bottom: 1.3px solid #111; transform: rotate(-2deg); }
+.start-button::before { content: ""; position: absolute; left: 42px; bottom: 0; width: 27px; height: 8px; border-bottom: 1px solid #111; transform: rotate(5deg); }
+
+/* 입력·게임 화면도 같은 종이 안에서 유지 */
+.game-panel { height: 100%; padding: 34px 18px 8px; }
+.game-panel .speech.compact { right: -10px; top: -17px; width: auto; height: auto; min-width: 138px; padding: 7px 10px; line-height: 1.4; }
+.game-panel .ladder-wrap { height: 150px; }
+.game-panel .field-row input { height: 25px; }
+.game-panel .actions { margin-top: 3px; }
+
+@media (max-width: 613px) {
+  .search-widget { transform-origin: top left; }
+  .paper-card { left: 5.7%; top: 6.4%; width: 89.1%; height: 83.3%; }
+  .paper-one { left: 4.9%; top: 10.6%; width: 88.8%; height: 79%; }.paper-two { left: 6%; top: 12.8%; width: 87.1%; height: 76%; }
+  .intro-panel h2 { left: 34%; top: 9%; font-size: clamp(20px, 4.75vw, 29px); }
+  .speech { right: -2.4%; top: -5.5%; width: 30%; height: 21%; font-size: clamp(6px, 1.62vw, 10px); padding: 1.3% 1.6%; }
+  .counter { left: 35.1%; top: 39.4%; width: 33.1%; height: 27%; }
+  .counter strong { width: clamp(51px, 12.55vw, 77px); height: clamp(51px, 12.55vw, 77px); font-size: clamp(29px, 6.85vw, 42px); }
+  .start-button { left: 43.7%; top: 70.5%; width: 17%; font-size: clamp(8px, 2.1vw, 13px); letter-spacing: .9vw; }
+  .scrap-right { right: 4%; }.paper-stage::after { right: 5.5%; bottom: 4.5%; }
+  .game-panel { padding: 10% 2.5% 2%; }.game-panel .ladder-wrap { height: 44vw; max-height: 150px; }
+}
+
+/* 원본 이미지를 그대로 사용하는 픽셀 일치 첫 화면 */
+.paper-stage.reference-intro {
+  background: #fff url("/naver-ladder-reference.png") center top / 100% 100% no-repeat;
+}
+.reference-intro > .paper-shadow,
+.reference-intro > .paper-scrap,
+.reference-intro::after { display: none; }
+.reference-intro .paper-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.reference-intro .intro-panel h2,
+.reference-intro .intro-panel .scribble,
+.reference-intro .intro-panel .speech { visibility: hidden; }
+.reference-intro .counter button {
+  opacity: 0;
+  width: 34px;
+  height: 42px;
+  cursor: pointer;
+}
+.reference-intro .counter button:focus-visible {
+  opacity: 1;
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+.reference-intro .counter .reference-six { opacity: 0; }
+.reference-intro .counter .reference-count {
+  opacity: 1;
+  width: 73px;
+  height: 73px;
+  border: 1.4px solid #111;
+  background: #fff;
+  color: #e21f26;
+  font-size: 42px;
+}
+.reference-intro .start-button {
+  opacity: 0;
+  height: 42px;
+  cursor: pointer;
+}
+.reference-intro .start-button:focus-visible {
+  opacity: 1;
+  background: rgba(255,255,255,.92);
+  outline: 2px solid #1a73e8;
+}
+
+/* 첨부된 시작 후 6인 입력 화면 */
+.paper-stage.reference-edit {
+  background: #fff url("/naver-ladder-edit-reference.png") center top / 100% 100% no-repeat;
+}
+.search-widget:has(.reference-edit) { width: min(622px, 100vw); aspect-ratio: 622 / 330; }
+.reference-edit > .paper-shadow,
+.reference-edit > .paper-scrap,
+.reference-edit::after { display: none; }
+.reference-edit .paper-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.reference-edit .game-panel { position: static; height: 100%; padding: 0; }
+.reference-edit .speech,
+.reference-edit .ladder-wrap { display: none; }
+.reference-edit .field-row {
+  position: absolute;
+  left: 43px;
+  width: 438px;
+  display: grid;
+  grid-template-columns: repeat(6, 67px) !important;
+  gap: 7px;
+  padding: 0;
+  overflow: visible;
+}
+.reference-edit .top-fields { top: 24px; }
+.reference-edit .bottom-fields { top: 187px; }
+.reference-edit .field-row input {
+  width: 67px;
+  min-width: 0;
+  height: 22px;
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: #222;
+  font-family: "Malgun Gothic", sans-serif;
+  font-size: 10px;
+  text-align: center;
+  transform: none;
+}
+.reference-edit .field-row input:focus {
+  border: 0;
+  background: rgba(255,255,220,.68);
+  box-shadow: inset 0 -1px 0 #222;
+}
+.reference-edit .actions {
+  position: absolute;
+  left: 201px;
+  top: 222px;
+  width: 218px;
+  height: 35px;
+  display: flex;
+  justify-content: space-between;
+  gap: 26px;
+  margin: 0;
+}
+.reference-edit .actions .text-button {
+  width: 96px;
+  height: 35px;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.reference-edit .actions .text-button:focus-visible {
+  opacity: 1;
+  background: rgba(255,255,255,.92);
+  outline: 2px solid #1a73e8;
+}
+
+@media (max-width: 613px) {
+  .reference-edit .field-row { left: 7.85%; width: 80%; grid-template-columns: repeat(6, 1fr) !important; gap: 1.28%; }
+  .reference-edit .top-fields { top: 8.75%; }.reference-edit .bottom-fields { top: 68.25%; }
+  .reference-edit .field-row input { width: 100%; height: 6.8vw; max-height: 22px; font-size: clamp(6px, 1.6vw, 10px); }
+  .reference-edit .actions { left: 36.7%; top: 81%; width: 39.8%; height: 12%; }
+  .reference-edit .actions .text-button { width: 44%; height: 100%; }
+}
+
+/* 첨부된 5인 게임 진행 화면 */
+.paper-stage.reference-play {
+  background: #fff url("/naver-ladder-play-reference.png") center top / 100% 100% no-repeat;
+}
+.search-widget:has(.reference-play) { width: min(619px, 100vw); aspect-ratio: 619 / 332; }
+.reference-play > .paper-shadow,
+.reference-play > .paper-scrap,
+.reference-play::after { display: none; }
+.reference-play .paper-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.reference-play .game-panel { position: static; height: 100%; padding: 0; }
+.reference-play .speech,
+.reference-play .actions { display: none; }
+.reference-play .field-row {
+  position: absolute;
+  left: 94px;
+  width: 346px;
+  display: grid;
+  gap: 5px;
+  padding: 0;
+  overflow: visible;
+}
+.reference-play .top-fields { top: 24px; }
+.reference-play .bottom-fields { top: 186px; }
+.reference-play .name-chip {
+  width: 50px;
+  min-width: 0;
+  height: 20px;
+  padding: 1px 2px;
+  overflow: hidden;
+  border: 0;
+  background: rgba(255,255,255,.94);
+  color: #222;
+  font-family: "Malgun Gothic", sans-serif;
+  font-size: 10px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+}
+.reference-play .name-chip span { display: none; }
+.reference-play .name-chip:hover:not(:disabled),
+.reference-play .name-chip.selected { transform: none; background: rgba(255,255,255,.96); color: #ee1c32; }
+.reference-play .result-chip {
+  width: 50px;
+  min-width: 0;
+  min-height: 20px;
+  height: 20px;
+  padding: 1px 2px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: rgba(255,255,255,.94);
+  color: #222;
+  font-family: "Malgun Gothic", sans-serif;
+  font-size: 10px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reference-play .result-chip.winner { transform: none; background: rgba(255,255,255,.96); color: #ee1c32; box-shadow: none; font-weight: 700; }
+.reference-play .result-toast { display: none; }
+.reference-route {
+  position: absolute;
+  z-index: 6;
+  left: 0;
+  top: 0;
+  width: 547px;
+  height: 274px;
+  overflow: visible;
+  pointer-events: none;
+}
+.reference-route polyline {
+  fill: none;
+  stroke: #ed1834;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  filter: drop-shadow(1px 1px 0 rgba(136,0,16,.38));
+  animation: referenceTrace 1.75s ease-in-out forwards;
+}
+@keyframes referenceTrace { to { stroke-dashoffset: 0; } }
+.all-results-button { display: none; }
+.restart-button { display: none; }
+.reference-play .restart-button {
+  position: absolute;
+  z-index: 7;
+  left: 145px;
+  top: 229px;
+  display: block;
+  width: 72px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #333;
+  background: rgba(255,255,255,.92);
+  color: #333;
+  font-family: "Malgun Gothic", sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+}
+.reference-play .restart-button:hover { color: #ed1834; border-color: #ed1834; }
+.reference-play .all-results-button {
+  position: absolute;
+  left: 202px;
+  top: 222px;
+  display: block;
+  width: 128px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+.reference-play .all-results-button:focus-visible { outline: 2px solid #1a73e8; outline-offset: 2px; }
+
+@media (max-width: 613px) {
+  .reference-play .field-row { left: 17.2%; width: 63.25%; gap: 1%; }
+  .reference-play .top-fields { top: 8.8%; }.reference-play .bottom-fields { top: 68.1%; }
+  .reference-play .name-chip, .reference-play .result-chip { width: 100%; height: 6vw; max-height: 20px; font-size: clamp(6px, 1.6vw, 10px); }
+  .reference-play .all-results-button { left: 36.8%; top: 81%; width: 23.5%; height: 12%; }
+  .reference-play .restart-button { left: 26.5%; top: 83%; width: 13%; height: 8%; font-size: clamp(7px, 1.7vw, 11px); }
+  .reference-route { width: 100%; height: 100%; }
+}
+
+/* 모든 인원수에 동일하게 적용되는 진행 화면 */
+.paper-stage.reference-play::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: 128px;
+  top: 38px;
+  width: 376px;
+  height: 205px;
+  background-color: #fff;
+  background-image: repeating-linear-gradient(0deg, transparent 0 17px, rgba(106,157,204,.18) 18px, transparent 19px);
+}
+.reference-play .paper-card { z-index: 2; }
+.reference-play .top-fields,
+.reference-play .bottom-fields {
+  left: 69px;
+  width: 410px;
+  gap: 5px;
+}
+.reference-play .top-fields { top: 22px; }
+.reference-play .bottom-fields { top: 187px; }
+.reference-play .name-chip,
+.reference-play .result-chip {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: rgba(255,255,255,.96);
+  color: #222;
+  font-family: "Malgun Gothic", sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+}
+.reference-play .ladder-wrap {
+  position: absolute;
+  left: 68px;
+  top: 42px;
+  display: block;
+  width: 412px;
+  height: 158px;
+  margin: 0;
+}
+.reference-play .ladder-line { stroke: #191919; stroke-width: 2.1; filter: none; }
+.reference-play .rung { stroke-width: 1.15; }
+.reference-play .route-line {
+  stroke: #ed1834 !important;
+  stroke-width: 4.2;
+  filter: drop-shadow(1px 1px 0 rgba(136,0,16,.38));
+}
+.reference-play .name-chip.selected,
+.reference-play .result-chip.winner { color: #ed1834; background: #fff; font-weight: 600; }
+
+@media (max-width: 613px) {
+  .paper-stage.reference-play::before { left: 20.7%; top: 11.45%; width: 60.75%; height: 61.75%; }
+  .reference-play .top-fields, .reference-play .bottom-fields { left: 12.6%; width: 75%; gap: 1%; }
+  .reference-play .top-fields { top: 8%; }.reference-play .bottom-fields { top: 68.25%; }
+  .reference-play .ladder-wrap { left: 12.4%; top: 15.3%; width: 75.3%; height: 55%; }
+}

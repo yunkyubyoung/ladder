@@ -1,0 +1,249 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type Bar = { row: number; col: number };
+type Point = { x: number; y: number };
+
+const COLORS = ["#f04444", "#3977e8", "#16a06b", "#f19a25", "#865bd5", "#e55da2", "#1b9aaa", "#78533f"];
+const DEFAULT_NAMES = ["", "", "", "", "", ""];
+const DEFAULT_RESULTS = ["", "", "", "", "", ""];
+
+function makeBars(count: number): Bar[] {
+  const rows = Math.max(10, count * 2 + 2);
+  const bars: Bar[] = [];
+  for (let row = 0; row < rows; row++) {
+    let col = Math.floor(Math.random() * (count - 1));
+    bars.push({ row, col });
+    if (count > 4 && Math.random() > 0.52) {
+      const candidates = Array.from({ length: count - 1 }, (_, i) => i).filter((i) => Math.abs(i - col) > 1);
+      if (candidates.length) bars.push({ row, col: candidates[Math.floor(Math.random() * candidates.length)] });
+    }
+  }
+  return bars;
+}
+
+function tracePath(start: number, count: number, bars: Bar[], width = 1000, height = 560) {
+  const padX = 65;
+  const topY = 50;
+  const bottomY = height - 50;
+  const gap = (width - padX * 2) / (count - 1);
+  const rows = Math.max(...bars.map((bar) => bar.row), 0) + 1;
+  const rowGap = (bottomY - topY) / (rows + 1);
+  const points: Point[] = [{ x: padX + start * gap, y: topY }];
+  let current = start;
+  for (let row = 0; row < rows; row++) {
+    const y = topY + (row + 1) * rowGap;
+    points.push({ x: padX + current * gap, y });
+    const right = bars.some((bar) => bar.row === row && bar.col === current);
+    const left = bars.some((bar) => bar.row === row && bar.col === current - 1);
+    if (right) current += 1;
+    else if (left) current -= 1;
+    points.push({ x: padX + current * gap, y });
+  }
+  points.push({ x: padX + current * gap, y: bottomY });
+  return { points, end: current };
+}
+
+function normalize(items: string[], count: number, fallback: (i: number) => string) {
+  return Array.from({ length: count }, (_, i) => items[i] ?? fallback(i));
+}
+
+export function LadderGame() {
+  const [count, setCount] = useState(6);
+  const [names, setNames] = useState(DEFAULT_NAMES);
+  const [results, setResults] = useState(DEFAULT_RESULTS);
+  const [stage, setStage] = useState<"intro" | "edit" | "play">("intro");
+  const [bars, setBars] = useState<Bar[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [finished, setFinished] = useState<Set<number>>(new Set());
+  const revealTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("sketch-ladder");
+      if (!saved) return;
+      JSON.parse(saved);
+      setCount(6);
+      setNames(DEFAULT_NAMES);
+      setResults(DEFAULT_RESULTS);
+      localStorage.removeItem("sketch-ladder");
+    } catch { /* 오래된 저장값은 무시합니다. */ }
+  }, []);
+
+  useEffect(() => {
+    if (stage !== "intro") localStorage.setItem("sketch-ladder", JSON.stringify({ count, names, results }));
+  }, [count, names, results, stage]);
+
+  useEffect(() => () => {
+    if (revealTimer.current !== null) window.clearTimeout(revealTimer.current);
+  }, []);
+
+  const changeCount = (next: number) => {
+    const safe = Math.max(2, Math.min(24, next));
+    setCount(safe);
+    setNames((prev) => normalize(prev, safe, (i) => `참가자 ${i + 1}`));
+    setResults((prev) => normalize(prev, safe, (i) => (i % 3 === 0 ? "당첨" : "통과")));
+  };
+
+  const xFor = (index: number) => 65 + index * (870 / (count - 1));
+  const rowCount = Math.max(...bars.map((bar) => bar.row), 0) + 1;
+  const selectedTrace = useMemo(() => selected === null ? null : tracePath(selected, count, bars), [selected, count, bars]);
+  const selectedEnd = selected === null ? null : selectedTrace?.end ?? null;
+
+  const beginEdit = () => {
+    const referenceCount = 6;
+    setCount(referenceCount);
+    setNames(Array(referenceCount).fill(""));
+    setResults(Array(referenceCount).fill(""));
+    setBars(makeBars(referenceCount));
+    setSelected(null);
+    setRevealed(false);
+    setFinished(new Set());
+    setStage("edit");
+  };
+
+  const choose = (index: number) => {
+    if (selected !== null && !revealed) return;
+    if (revealTimer.current !== null) window.clearTimeout(revealTimer.current);
+    setSelected(index);
+    setRevealed(false);
+    revealTimer.current = window.setTimeout(() => {
+      setRevealed(true);
+      setFinished((prev) => new Set(prev).add(index));
+      revealTimer.current = null;
+    }, 4100);
+  };
+
+  const resetPick = () => {
+    if (revealTimer.current !== null) window.clearTimeout(revealTimer.current);
+    revealTimer.current = null;
+    setSelected(null);
+    setRevealed(false);
+  };
+
+  const startGame = () => {
+    const active = names
+      .map((name, i) => ({ name: name.trim(), result: (results[i] ?? "").trim() }))
+      .filter((item) => item.name || item.result);
+    const entries = active.length >= 2
+      ? active
+      : names.slice(0, 5).map((name, i) => ({ name: name.trim() || `${i + 1}`, result: (results[i] ?? "").trim() || `${i + 1}` }));
+    setCount(entries.length);
+    setNames(entries.map((item) => item.name));
+    setResults(entries.map((item) => item.result));
+    setBars(makeBars(entries.length));
+    setSelected(null);
+    setRevealed(false);
+    setFinished(new Set());
+    setStage("play");
+  };
+
+  const goToStart = () => {
+    if (revealTimer.current !== null) window.clearTimeout(revealTimer.current);
+    revealTimer.current = null;
+    setCount(6);
+    setNames(DEFAULT_NAMES);
+    setResults(DEFAULT_RESULTS);
+    setBars([]);
+    setSelected(null);
+    setRevealed(false);
+    setFinished(new Set());
+    localStorage.removeItem("sketch-ladder");
+    setStage("intro");
+  };
+
+  return (
+    <main className="search-widget">
+      <section className={`paper-stage ${stage === "intro" ? "reference-intro" : stage === "edit" ? "reference-edit" : stage === "play" ? "reference-play" : ""}`} aria-live="polite">
+        <span className="paper-shadow paper-one" aria-hidden="true" />
+        <span className="paper-shadow paper-two" aria-hidden="true" />
+        <span className="paper-scrap scrap-left" aria-hidden="true" />
+        <span className="paper-scrap scrap-bottom-left" aria-hidden="true" />
+        <span className="paper-scrap scrap-bottom-mid" aria-hidden="true" />
+        <span className="paper-scrap scrap-right" aria-hidden="true" />
+        <div className="paper-card">
+        <span className="tape tape-left" aria-hidden="true" />
+        <span className="tape tape-right" aria-hidden="true" />
+
+        {stage === "intro" && (
+          <div className="intro-panel">
+            <p className="speech">참여인원 수를 알려주세요.<br />24명까지 함께 할 수 있습니다.</p>
+            <h2>사다리게임!</h2>
+            <div className="scribble" aria-hidden="true" />
+            <div className="counter" aria-label="참가 인원">
+              <button type="button" onClick={() => changeCount(count - 1)} disabled={count <= 2} aria-label="인원 줄이기">−</button>
+              <strong className={count === 6 ? "reference-six" : "reference-count"}>{count}</strong>
+              <button type="button" onClick={() => changeCount(count + 1)} disabled={count >= 24} aria-label="인원 늘리기">＋</button>
+            </div>
+            <button className="text-button start-button" type="button" onClick={beginEdit}>시작</button>
+          </div>
+        )}
+
+        {stage !== "intro" && (
+          <div className="game-panel">
+            <p className="speech compact">{stage === "edit" ? "이름과 결과를 적어주세요." : selected === null ? "궁금한 이름을 눌러주세요!" : revealed ? "결과가 나왔어요!" : "두근두근, 내려가는 중..."}</p>
+            <div className="field-row top-fields" style={{ gridTemplateColumns: `repeat(${count}, minmax(62px, 1fr))` }}>
+              {names.map((name, i) => stage === "edit" ? (
+                <input key={i} value={name} maxLength={10} aria-label={`${i + 1}번 참가자 이름`} onChange={(e) => setNames(names.map((v, j) => j === i ? e.target.value : v))} />
+              ) : (
+                <button key={i} type="button" className={`name-chip ${finished.has(i) ? "finished" : ""} ${selected === i ? "selected" : ""}`} onClick={() => choose(i)} disabled={selected !== null && !revealed}>
+                  <span style={{ background: COLORS[i % COLORS.length] }}>{i + 1}</span>{name || `참가자 ${i + 1}`}
+                </button>
+              ))}
+            </div>
+
+            <div className="ladder-wrap">
+              <svg className="ladder" viewBox="0 0 1000 560" role="img" aria-label="사다리 게임판" preserveAspectRatio="none">
+                {Array.from({ length: count }, (_, i) => <line key={`v-${i}`} x1={xFor(i)} y1="50" x2={xFor(i)} y2="510" className="ladder-line" />)}
+                {bars.map((bar, i) => {
+                  const y = 50 + (bar.row + 1) * (460 / (rowCount + 1));
+                  return <line key={`b-${i}`} x1={xFor(bar.col)} y1={y} x2={xFor(bar.col + 1)} y2={y} className="ladder-line rung" />;
+                })}
+                {selectedTrace && (
+                  <polyline key={`route-${selected}`} className="route-line" style={{ stroke: COLORS[selected! % COLORS.length] }} points={selectedTrace.points.map((p) => `${p.x},${p.y}`).join(" ")} />
+                )}
+              </svg>
+            </div>
+            <div className="field-row bottom-fields" style={{ gridTemplateColumns: `repeat(${count}, minmax(62px, 1fr))` }}>
+              {results.map((result, i) => stage === "edit" ? (
+                <input key={i} value={result} maxLength={12} aria-label={`${i + 1}번 결과`} onChange={(e) => setResults(results.map((v, j) => j === i ? e.target.value : v))} />
+              ) : (
+                <div key={i} className={`result-chip ${revealed && selectedEnd === i ? "winner" : ""}`}>
+                  {result || "?"}
+                </div>
+              ))}
+            </div>
+
+            {revealed && selectedTrace && (
+              <div className="result-toast">
+                <span>{names[selected!] || `참가자 ${selected! + 1}`}</span> → <strong>{results[selectedEnd ?? selectedTrace.end] || "결과 없음"}</strong>
+              </div>
+            )}
+
+            <div className="actions">
+              <button type="button" className="text-button muted" onClick={() => setStage("intro")}>돌아가기</button>
+              {stage === "edit" ? (
+                <button type="button" className="text-button primary" onClick={startGame}>사다리 시작</button>
+              ) : selected !== null ? (
+                <button type="button" className="text-button primary" onClick={resetPick}>{revealed ? "다른 사람 보기" : "진행 중..."}</button>
+              ) : (
+                <button type="button" className="text-button primary" onClick={beginEdit}>다시 만들기</button>
+              )}
+            </div>
+            {stage === "play" && (
+              <>
+                <button type="button" className="restart-button" onClick={goToStart}>처음으로</button>
+                <button type="button" className="all-results-button" onClick={() => setFinished(new Set(Array.from({ length: count }, (_, i) => i)))}>
+                  전체 결과 보기
+                </button>
+              </>
+            )}
+          </div>
+        )}
+        </div>
+      </section>
+    </main>
+  );
+}
