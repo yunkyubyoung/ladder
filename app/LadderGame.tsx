@@ -24,10 +24,10 @@ function makeBars(count: number): Bar[] {
 }
 
 function tracePath(start: number, count: number, bars: Bar[], width = 1000, height = 560) {
-  const padX = 65;
+  const padX = 0;
   const topY = 50;
   const bottomY = height - 50;
-  const gap = (width - padX * 2) / (count - 1);
+  const gap = width / (count - 1);
   const rows = Math.max(...bars.map((bar) => bar.row), 0) + 1;
   const rowGap = (bottomY - topY) / (rows + 1);
   const points: Point[] = [{ x: padX + start * gap, y: topY }];
@@ -53,11 +53,12 @@ export function LadderGame() {
   const [count, setCount] = useState(6);
   const [names, setNames] = useState(DEFAULT_NAMES);
   const [results, setResults] = useState(DEFAULT_RESULTS);
-  const [stage, setStage] = useState<"intro" | "edit" | "play">("intro");
+  const [stage, setStage] = useState<"intro" | "edit" | "play" | "results">("intro");
   const [bars, setBars] = useState<Bar[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [finished, setFinished] = useState<Set<number>>(new Set());
+  const [routeRun, setRouteRun] = useState(0);
   const revealTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -83,21 +84,28 @@ export function LadderGame() {
   const changeCount = (next: number) => {
     const safe = Math.max(2, Math.min(24, next));
     setCount(safe);
-    setNames((prev) => normalize(prev, safe, (i) => `참가자 ${i + 1}`));
-    setResults((prev) => normalize(prev, safe, (i) => (i % 3 === 0 ? "당첨" : "통과")));
+    setNames((prev) => normalize(prev, safe, () => ""));
+    setResults((prev) => normalize(prev, safe, () => ""));
   };
 
-  const xFor = (index: number) => 65 + index * (870 / (count - 1));
+  const xFor = (index: number) => index * (1000 / (count - 1));
+  const boardWidth = Math.min(460, count * 67 + (count - 1) * 7);
+  const boardLeft = (548 - boardWidth) / 2;
+  const slotWidth = (boardWidth - (count - 1) * 7) / count;
+  const ladderLeft = boardLeft + slotWidth / 2;
+  const ladderWidth = (count - 1) * (slotWidth + 7);
   const rowCount = Math.max(...bars.map((bar) => bar.row), 0) + 1;
   const selectedTrace = useMemo(() => selected === null ? null : tracePath(selected, count, bars), [selected, count, bars]);
   const selectedEnd = selected === null ? null : selectedTrace?.end ?? null;
+  const allMappings = useMemo(() => names.map((name, i) => {
+    const end = tracePath(i, count, bars).end;
+    return { name: name || `${i + 1}`, result: results[end] || "?" };
+  }), [names, results, count, bars]);
 
   const beginEdit = () => {
-    const referenceCount = 6;
-    setCount(referenceCount);
-    setNames(Array(referenceCount).fill(""));
-    setResults(Array(referenceCount).fill(""));
-    setBars(makeBars(referenceCount));
+    setNames(Array(count).fill(""));
+    setResults(Array(count).fill(""));
+    setBars([]);
     setSelected(null);
     setRevealed(false);
     setFinished(new Set());
@@ -105,15 +113,15 @@ export function LadderGame() {
   };
 
   const choose = (index: number) => {
-    if (selected !== null && !revealed) return;
     if (revealTimer.current !== null) window.clearTimeout(revealTimer.current);
     setSelected(index);
     setRevealed(false);
+    setRouteRun((run) => run + 1);
     revealTimer.current = window.setTimeout(() => {
       setRevealed(true);
       setFinished((prev) => new Set(prev).add(index));
       revealTimer.current = null;
-    }, 4100);
+    }, 7200);
   };
 
   const resetPick = () => {
@@ -127,9 +135,8 @@ export function LadderGame() {
     const active = names
       .map((name, i) => ({ name: name.trim(), result: (results[i] ?? "").trim() }))
       .filter((item) => item.name || item.result);
-    const entries = active.length >= 2
-      ? active
-      : names.slice(0, 5).map((name, i) => ({ name: name.trim() || `${i + 1}`, result: (results[i] ?? "").trim() || `${i + 1}` }));
+    if (active.length < 2) return;
+    const entries = active;
     setCount(entries.length);
     setNames(entries.map((item) => item.name));
     setResults(entries.map((item) => item.result));
@@ -156,7 +163,7 @@ export function LadderGame() {
 
   return (
     <main className="search-widget">
-      <section className={`paper-stage ${stage === "intro" ? "reference-intro" : stage === "edit" ? "reference-edit" : stage === "play" ? "reference-play" : ""}`} aria-live="polite">
+      <section className={`paper-stage ${stage === "intro" ? "reference-intro" : stage === "edit" ? "dynamic-edit" : stage === "play" ? "dynamic-play" : "dynamic-results"}`} aria-live="polite">
         <span className="paper-shadow paper-one" aria-hidden="true" />
         <span className="paper-shadow paper-two" aria-hidden="true" />
         <span className="paper-scrap scrap-left" aria-hidden="true" />
@@ -181,20 +188,20 @@ export function LadderGame() {
           </div>
         )}
 
-        {stage !== "intro" && (
+        {(stage === "edit" || stage === "play") && (
           <div className="game-panel">
-            <p className="speech compact">{stage === "edit" ? "이름과 결과를 적어주세요." : selected === null ? "궁금한 이름을 눌러주세요!" : revealed ? "결과가 나왔어요!" : "두근두근, 내려가는 중..."}</p>
-            <div className="field-row top-fields" style={{ gridTemplateColumns: `repeat(${count}, minmax(62px, 1fr))` }}>
+            <p className="speech compact">{stage === "edit" ? "이름과 당첨항목을 적어주세요." : "이름이나 당첨항목을 클릭하세요."}</p>
+            <div className="field-row top-fields" style={{ left: boardLeft, width: boardWidth, gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
               {names.map((name, i) => stage === "edit" ? (
                 <input key={i} value={name} maxLength={10} aria-label={`${i + 1}번 참가자 이름`} onChange={(e) => setNames(names.map((v, j) => j === i ? e.target.value : v))} />
               ) : (
-                <button key={i} type="button" className={`name-chip ${finished.has(i) ? "finished" : ""} ${selected === i ? "selected" : ""}`} onClick={() => choose(i)} disabled={selected !== null && !revealed}>
+                <button key={i} type="button" className={`name-chip ${finished.has(i) ? "finished" : ""} ${selected === i ? "selected" : ""}`} onClick={() => choose(i)}>
                   <span style={{ background: COLORS[i % COLORS.length] }}>{i + 1}</span>{name || `참가자 ${i + 1}`}
                 </button>
               ))}
             </div>
 
-            <div className="ladder-wrap">
+            <div className="ladder-wrap" style={{ left: ladderLeft, width: ladderWidth }}>
               <svg className="ladder" viewBox="0 0 1000 560" role="img" aria-label="사다리 게임판" preserveAspectRatio="none">
                 {Array.from({ length: count }, (_, i) => <line key={`v-${i}`} x1={xFor(i)} y1="50" x2={xFor(i)} y2="510" className="ladder-line" />)}
                 {bars.map((bar, i) => {
@@ -202,11 +209,11 @@ export function LadderGame() {
                   return <line key={`b-${i}`} x1={xFor(bar.col)} y1={y} x2={xFor(bar.col + 1)} y2={y} className="ladder-line rung" />;
                 })}
                 {selectedTrace && (
-                  <polyline key={`route-${selected}`} className="route-line" style={{ stroke: COLORS[selected! % COLORS.length] }} points={selectedTrace.points.map((p) => `${p.x},${p.y}`).join(" ")} />
+                  <polyline key={`route-${selected}-${routeRun}`} className="route-line" style={{ stroke: COLORS[selected! % COLORS.length] }} points={selectedTrace.points.map((p) => `${p.x},${p.y}`).join(" ")} />
                 )}
               </svg>
             </div>
-            <div className="field-row bottom-fields" style={{ gridTemplateColumns: `repeat(${count}, minmax(62px, 1fr))` }}>
+            <div className="field-row bottom-fields" style={{ left: boardLeft, width: boardWidth, gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
               {results.map((result, i) => stage === "edit" ? (
                 <input key={i} value={result} maxLength={12} aria-label={`${i + 1}번 결과`} onChange={(e) => setResults(results.map((v, j) => j === i ? e.target.value : v))} />
               ) : (
@@ -233,13 +240,20 @@ export function LadderGame() {
               )}
             </div>
             {stage === "play" && (
-              <>
-                <button type="button" className="restart-button" onClick={goToStart}>처음으로</button>
-                <button type="button" className="all-results-button" onClick={() => setFinished(new Set(Array.from({ length: count }, (_, i) => i)))}>
-                  전체 결과 보기
-                </button>
-              </>
+              <button type="button" className="all-results-button" onClick={() => setStage("results")}>
+                전체 결과 보기
+              </button>
             )}
+          </div>
+        )}
+        {stage === "results" && (
+          <div className="results-panel">
+            <ol>
+              {allMappings.map((item, i) => (
+                <li key={i}><strong>• {item.name}</strong><span>→ {item.result}</span></li>
+              ))}
+            </ol>
+            <button type="button" onClick={goToStart}>다시하기</button>
           </div>
         )}
         </div>
