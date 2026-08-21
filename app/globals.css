@@ -156,7 +156,7 @@ body { padding: 0; overflow-x: hidden; }
 
 /* 원본 이미지를 그대로 사용하는 픽셀 일치 첫 화면 */
 .paper-stage.reference-intro {
-  background: #fff url("/naver-ladder-reference.png") center top / 100% 100% no-repeat;
+  background: #fff url("/naver-ladder-reference-clean.png") center top / 100% 100% no-repeat;
 }
 .reference-intro > .paper-shadow,
 .reference-intro > .paper-scrap,
@@ -168,8 +168,8 @@ body { padding: 0; overflow-x: hidden; }
   transform: none;
 }
 .reference-intro .intro-panel h2,
-.reference-intro .intro-panel .scribble,
-.reference-intro .intro-panel .speech { visibility: hidden; }
+.reference-intro .intro-panel .scribble { visibility: hidden; }
+.reference-intro .intro-panel .speech { visibility: visible; }
 .reference-intro .counter button {
   opacity: 0;
   width: 34px;
@@ -181,15 +181,30 @@ body { padding: 0; overflow-x: hidden; }
   outline: 2px solid #1a73e8;
   outline-offset: 2px;
 }
-.reference-intro .counter .reference-six { opacity: 0; }
 .reference-intro .counter .reference-count {
+  position: relative;
   opacity: 1;
   width: 73px;
   height: 73px;
-  border: 1.4px solid #111;
-  background: #fff;
-  color: #e21f26;
-  font-size: 42px;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+  transform: none;
+}
+.reference-intro .counter .reference-count img {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  display: block;
+  width: min(101px, 16.32vw);
+  height: min(95px, 15.35vw);
+  max-width: none;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  transform: translate(-50%, -50%);
 }
 .reference-intro .start-button {
   opacity: 0;

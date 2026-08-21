@@ -79,7 +79,7 @@ export function LadderGame() {
   }, []);
 
   const changeCount = (next: number) => {
-    const safe = Math.max(2, Math.min(24, next));
+    const safe = Math.max(2, Math.min(12, next));
     setCount(safe);
     setNames((prev) => normalize(prev, safe, () => ""));
     setResults((prev) => normalize(prev, safe, () => ""));
@@ -173,13 +173,16 @@ export function LadderGame() {
 
         {stage === "intro" && (
           <div className="intro-panel">
-            <p className="speech">참여인원 수를 알려주세요.<br />24명까지 함께 할 수 있습니다.</p>
+            <p className="speech">참여인원 수를 알려주세요.<br />12명까지 함께 할 수 있습니다.</p>
             <h2>사다리게임!</h2>
             <div className="scribble" aria-hidden="true" />
             <div className="counter" aria-label="참가 인원">
               <button type="button" onClick={() => changeCount(count - 1)} disabled={count <= 2} aria-label="인원 줄이기">−</button>
-              <strong className={count === 6 ? "reference-six" : "reference-count"}>{count}</strong>
-              <button type="button" onClick={() => changeCount(count + 1)} disabled={count >= 24} aria-label="인원 늘리기">＋</button>
+              <strong className="reference-count">
+                {count}
+                <img src={`/count-digits/${count}.png`} alt="" aria-hidden="true" draggable="false" />
+              </strong>
+              <button type="button" onClick={() => changeCount(count + 1)} disabled={count >= 12} aria-label="인원 늘리기">＋</button>
             </div>
             <button className="text-button start-button" type="button" onClick={beginEdit}>시작</button>
           </div>
