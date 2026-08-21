@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Bar = { row: number; col: number };
+type Bar = { row: number; col: number; tilt: number };
 type Point = { x: number; y: number };
 
 const COLORS = ["#f04444", "#3977e8", "#16a06b", "#f19a25", "#865bd5", "#e55da2", "#1b9aaa", "#78533f"];
@@ -14,12 +14,26 @@ function makeBars(count: number): Bar[] {
   const bars: Bar[] = [];
   for (let row = 0; row < rows; row++) {
     const col = Math.floor(Math.random() * (count - 1));
-    bars.push({ row, col });
+    bars.push({ row, col, tilt: 0 });
     if (count > 4 && Math.random() > 0.52) {
       const candidates = Array.from({ length: count - 1 }, (_, i) => i).filter((i) => Math.abs(i - col) > 1);
-      if (candidates.length) bars.push({ row, col: candidates[Math.floor(Math.random() * candidates.length)] });
+      if (candidates.length) bars.push({ row, col: candidates[Math.floor(Math.random() * candidates.length)], tilt: 0 });
     }
   }
+
+  const diagonalCount = Math.min(bars.length, Math.random() < 0.5 ? 1 : 2);
+  const rowGap = 460 / (rows + 1);
+  const maxTilt = Math.min(24, rowGap * 0.8);
+  const candidates = bars.map((_, index) => index).sort(() => Math.random() - 0.5);
+  const selectedRows = new Set<number>();
+  for (const index of candidates) {
+    if (selectedRows.has(bars[index].row)) continue;
+    const direction = Math.random() < 0.5 ? -1 : 1;
+    bars[index].tilt = direction * maxTilt;
+    selectedRows.add(bars[index].row);
+    if (selectedRows.size === diagonalCount) break;
+  }
+
   return bars;
 }
 
@@ -34,12 +48,19 @@ function tracePath(start: number, count: number, bars: Bar[], width = 1000, heig
   let current = start;
   for (let row = 0; row < rows; row++) {
     const y = topY + (row + 1) * rowGap;
-    points.push({ x: padX + current * gap, y });
-    const right = bars.some((bar) => bar.row === row && bar.col === current);
-    const left = bars.some((bar) => bar.row === row && bar.col === current - 1);
-    if (right) current += 1;
-    else if (left) current -= 1;
-    points.push({ x: padX + current * gap, y });
+    const right = bars.find((bar) => bar.row === row && bar.col === current);
+    const left = bars.find((bar) => bar.row === row && bar.col === current - 1);
+    if (right) {
+      points.push({ x: padX + current * gap, y: y - right.tilt });
+      current += 1;
+      points.push({ x: padX + current * gap, y: y + right.tilt });
+    } else if (left) {
+      points.push({ x: padX + current * gap, y: y + left.tilt });
+      current -= 1;
+      points.push({ x: padX + current * gap, y: y - left.tilt });
+    } else {
+      points.push({ x: padX + current * gap, y });
+    }
   }
   points.push({ x: padX + current * gap, y: bottomY });
   return { points, end: current };
@@ -118,7 +139,7 @@ export function LadderGame() {
       setRevealed(true);
       setFinished((prev) => new Set(prev).add(index));
       revealTimer.current = null;
-    }, 7200);
+    }, 12200);
   };
 
   const resetPick = () => {
@@ -206,7 +227,7 @@ export function LadderGame() {
                 {Array.from({ length: count }, (_, i) => <line key={`v-${i}`} x1={xFor(i)} y1="50" x2={xFor(i)} y2="510" className="ladder-line" />)}
                 {bars.map((bar, i) => {
                   const y = 50 + (bar.row + 1) * (460 / (rowCount + 1));
-                  return <line key={`b-${i}`} x1={xFor(bar.col)} y1={y} x2={xFor(bar.col + 1)} y2={y} className="ladder-line rung" />;
+                  return <line key={`b-${i}`} x1={xFor(bar.col)} y1={y - bar.tilt} x2={xFor(bar.col + 1)} y2={y + bar.tilt} className="ladder-line rung" />;
                 })}
                 {selectedTrace && (
                   <polyline key={`route-${selected}-${routeRun}`} className="route-line" style={{ stroke: COLORS[selected! % COLORS.length] }} points={selectedTrace.points.map((p) => `${p.x},${p.y}`).join(" ")} />
