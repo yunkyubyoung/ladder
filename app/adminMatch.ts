@@ -4,29 +4,37 @@ export type AdminMatchConfig = {
   bottomItem: string;
 };
 
-export const ADMIN_MATCH_STORAGE_KEY = "ladder-admin-match";
-
 export const EMPTY_ADMIN_MATCH: AdminMatchConfig = {
   enabled: false,
   topItem: "",
   bottomItem: "",
 };
 
-export function loadAdminMatch(): AdminMatchConfig {
+export async function loadAdminMatch(): Promise<AdminMatchConfig> {
   try {
-    const saved = localStorage.getItem(ADMIN_MATCH_STORAGE_KEY);
-    if (!saved) return EMPTY_ADMIN_MATCH;
-    const parsed = JSON.parse(saved) as Partial<AdminMatchConfig>;
+    const response = await fetch("/api/admin-match", {
+      method: "GET",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) return EMPTY_ADMIN_MATCH;
+    const data = await response.json() as { config?: Partial<AdminMatchConfig> };
     return {
-      enabled: parsed.enabled === true,
-      topItem: typeof parsed.topItem === "string" ? parsed.topItem : "",
-      bottomItem: typeof parsed.bottomItem === "string" ? parsed.bottomItem : "",
+      enabled: data.config?.enabled === true,
+      topItem: typeof data.config?.topItem === "string" ? data.config.topItem : "",
+      bottomItem: typeof data.config?.bottomItem === "string" ? data.config.bottomItem : "",
     };
   } catch {
     return EMPTY_ADMIN_MATCH;
   }
 }
 
-export function saveAdminMatch(config: AdminMatchConfig) {
-  localStorage.setItem(ADMIN_MATCH_STORAGE_KEY, JSON.stringify(config));
+export async function saveAdminMatch(config: AdminMatchConfig, password: string) {
+  const response = await fetch("/api/admin-match", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ password, config }),
+  });
+  const data = await response.json().catch(() => ({})) as { error?: string };
+  if (!response.ok) throw new Error(data.error || "설정을 저장하지 못했습니다.");
 }

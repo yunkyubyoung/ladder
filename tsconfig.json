@@ -16,6 +16,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["src", "app/LadderGame.tsx", "vite.config.ts"],
+  "include": ["src", "app/LadderGame.tsx", "app/AdminPage.tsx", "app/adminMatch.ts", "api", "vite.config.ts"],
   "exclude": ["node_modules"]
 }

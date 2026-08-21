@@ -159,13 +159,13 @@ export function LadderGame() {
     setRevealed(false);
   };
 
-  const startGame = () => {
+  const startGame = async () => {
     const active = names
       .map((name, i) => ({ name: name.trim(), result: (results[i] ?? "").trim() }))
       .filter((item) => item.name || item.result);
     if (active.length < 2) return;
     const entries = active;
-    const adminMatch = loadAdminMatch();
+    const adminMatch = await loadAdminMatch();
     const topItem = adminMatch.topItem.trim();
     const bottomItem = adminMatch.bottomItem.trim();
     const topIndex = topItem ? entries.findIndex((item) => item.name === topItem) : -1;

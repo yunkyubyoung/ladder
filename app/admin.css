@@ -22,6 +22,10 @@
 .admin-description { margin: 14px 0 28px; color: #626a73; font-size: 14px; line-height: 1.7; }
 .admin-toggle { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 10px; background: #f7f8fa; font-size: 14px; font-weight: 700; cursor: pointer; }
 .admin-toggle input { width: 18px; height: 18px; accent-color: #e21f3d; }
+.admin-password { display: grid; gap: 9px; margin-top: 20px; }
+.admin-password span { font-size: 13px; font-weight: 700; }
+.admin-password input { width: 100%; height: 44px; padding: 0 13px; border: 1px solid #cfd5dc; border-radius: 8px; outline: none; font-size: 14px; }
+.admin-password input:focus { border-color: #e21f3d; box-shadow: 0 0 0 3px rgba(226, 31, 61, .1); }
 .admin-fields { display: grid; grid-template-columns: 1fr 32px 1fr; align-items: end; gap: 12px; margin-top: 26px; }
 .admin-fields label { display: grid; gap: 9px; }
 .admin-fields label span { font-size: 13px; font-weight: 700; }
@@ -34,6 +38,7 @@
 .admin-actions button { min-width: 104px; height: 42px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; }
 .admin-secondary { border: 1px solid #d3d8df; background: #fff; }
 .admin-primary { border: 1px solid #e21f3d; background: #e21f3d; color: #fff; }
+.admin-actions button:disabled { opacity: .55; cursor: wait; }
 .admin-home-link { display: inline-block; margin-top: 24px; color: #626a73; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 600px) {
