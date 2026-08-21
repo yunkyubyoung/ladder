@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { loadAdminMatch } from "./adminMatch";
 
 type Bar = { row: number; col: number; tilt: number };
 type Point = { x: number; y: number };
@@ -64,6 +65,15 @@ function tracePath(start: number, count: number, bars: Bar[], width = 1000, heig
   }
   points.push({ x: padX + current * gap, y: bottomY });
   return { points, end: current };
+}
+
+function makeBarsWithAdminMatch(count: number, topIndex: number, bottomIndex: number) {
+  let bars = makeBars(count);
+  for (let attempt = 0; attempt < 500; attempt++) {
+    if (tracePath(topIndex, count, bars).end === bottomIndex) return bars;
+    bars = makeBars(count);
+  }
+  return bars;
 }
 
 function normalize(items: string[], count: number, fallback: (i: number) => string) {
@@ -155,10 +165,18 @@ export function LadderGame() {
       .filter((item) => item.name || item.result);
     if (active.length < 2) return;
     const entries = active;
+    const adminMatch = loadAdminMatch();
+    const topItem = adminMatch.topItem.trim();
+    const bottomItem = adminMatch.bottomItem.trim();
+    const topIndex = topItem ? entries.findIndex((item) => item.name === topItem) : -1;
+    const bottomIndex = bottomItem ? entries.findIndex((item) => item.result === bottomItem) : -1;
+    const nextBars = adminMatch.enabled && topItem && bottomItem && topIndex >= 0 && bottomIndex >= 0
+      ? makeBarsWithAdminMatch(entries.length, topIndex, bottomIndex)
+      : makeBars(entries.length);
     setCount(entries.length);
     setNames(entries.map((item) => item.name));
     setResults(entries.map((item) => item.result));
-    setBars(makeBars(entries.length));
+    setBars(nextBars);
     setSelected(null);
     setRevealed(false);
     setFinished(new Set());
